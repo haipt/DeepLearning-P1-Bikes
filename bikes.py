@@ -206,6 +206,5 @@ def main():
     nn = train(train_features, train_targets, val_features, val_targets)
     predict(nn, test_features, test_targets, test_data, scaled_features)
 
-
-
-main()
+if __name__=='__main__':
+    main()
