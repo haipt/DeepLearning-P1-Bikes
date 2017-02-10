@@ -3,12 +3,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+data_path = 'Bike-Sharing-Dataset/hour.csv'
+rides = pd.read_csv(data_path)
 
 def sigmoid(x):
     return 1.0 / (1 + np.exp(-x))
 
-def sigmoid_derivate(x):
-    return sigmoid * (1 - sigmoid)
+# def sigmoid_prime(x):
+#     return sigmoid * (1 - sigmoid)
 
 class NeuralNetwork(object):
     def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate):
@@ -47,32 +49,50 @@ class NeuralNetwork(object):
         #### Implement the backward pass here ####
         ### Backward pass ###
 
+        print('final outputs', final_outputs)
+        print('targets_list', targets_list)
+
         output_error = targets_list - final_outputs
+        print('output_error', output_error)
 
         # TODO: Output error
-        output_grad = error * output_error * (1 - output_error)  # error gradient in output
+        output_grad = output_error * final_outputs * (1 - final_outputs)  # error gradient in output
+        print('output_grad', output_grad)
 
         # TODO: Backpropagated error
-        hidden_errors = np.dot(output_errors, self.weights_hidden_to_output) * hidden_outputs * (1 - hidden_outputs)  # errors propagated to the hidden layer
-        hidden_grad = hidden_errors * hidden_inputs
-        #
+        hidden_errors = np.dot(output_grad, self.weights_hidden_to_output)  # errors propagated to the hidden layer
+        print('hidden_errors', hidden_errors)
+        hidden_grad = hidden_errors.T * hidden_outputs * (1 - hidden_outputs)
+
+        print('hidden_outputs', hidden_outputs)
+        # print('lhs', self.weights_hidden_to_output)
+        # print('rhs', self.lr * hidden_outputs * output_grad)
+
+        print('hidden_grad', hidden_grad)
+
         # # TODO: Update the weights
-        self.weights_hidden_to_output += self.learning_rate * output_grad * hidden_outputs # update hidden-to-output weights with gradient descent step
-        self.weights_input_to_hidden += self.learning_rate * hidden_grad * inputs  # update input-to-hidden weights with gradient descent step
+        self.weights_hidden_to_output += (self.lr * hidden_outputs * output_grad).T    # update hidden-to-output weights with gradient descent step
+        self.weights_input_to_hidden += self.lr * hidden_grad * inputs.T  # update input-to-hidden weights with gradient descent step
 
 
     def run(self, inputs_list):
         # Run a forward pass through the network
         inputs = np.array(inputs_list, ndmin=2).T
 
+        print('inputs', inputs)
+
         #### Implement the forward pass here ####
         # TODO: Hidden layer
         hidden_inputs = np.dot(self.weights_input_to_hidden, inputs) # signals into hidden layer
+        print('hidden_inputs', hidden_inputs)
         hidden_outputs = self.activation_function(hidden_inputs) # signals from hidden layer
+        print('hidden_outputs', hidden_outputs)
 
         # TODO: Output layer
         final_inputs = np.dot(self.weights_hidden_to_output, hidden_outputs)
+        print ('final inputs', final_inputs)
         final_outputs = self.activation_function(final_inputs)
+        print ('final outputs', final_outputs)
 
         return final_outputs
 
@@ -132,9 +152,6 @@ def predict():
 
 
 def main():
-    data_path = 'Bike-Sharing-Dataset/hour.csv'
-
-    rides = pd.read_csv(data_path)
     print(rides.head())
 
     print(rides.shape)

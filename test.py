@@ -1,5 +1,8 @@
 import unittest
-from bikes import NeuralNetwork
+import numpy as np
+import pandas as pd
+import bikes
+from bikes import NeuralNetwork, data_path, rides
 
 inputs = [0.5, -0.2, 0.1]
 targets = [0.4]
@@ -48,6 +51,8 @@ class TestMethods(unittest.TestCase):
         network = NeuralNetwork(3, 2, 1, 0.5)
         network.weights_input_to_hidden = test_w_i_h.copy()
         network.weights_hidden_to_output = test_w_h_o.copy()
+
+        print('output', network.run(inputs))
 
         self.assertTrue(np.allclose(network.run(inputs), 0.09998924))
 
