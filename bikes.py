@@ -44,31 +44,29 @@ class NeuralNetwork(object):
 
         # TODO: Output layer
         final_inputs = np.dot(self.weights_hidden_to_output, hidden_outputs)
-        final_outputs = self.activation_function(final_inputs)
+        final_outputs = final_inputs
 
         #### Implement the backward pass here ####
         ### Backward pass ###
 
-        print('final outputs', final_outputs)
-        print('targets_list', targets_list)
+        # print('final outputs', final_outputs)
+        # print('targets_list', targets_list)
 
         output_error = targets_list - final_outputs
-        print('output_error', output_error)
+        # print('output_error', output_error)
 
         # TODO: Output error
-        output_grad = output_error * final_outputs * (1 - final_outputs)  # error gradient in output
-        print('output_grad', output_grad)
+        output_grad = output_error  # x' = 1 # error gradient in output
+        # print('output_grad', output_grad)
 
         # TODO: Backpropagated error
         hidden_errors = np.dot(output_grad, self.weights_hidden_to_output)  # errors propagated to the hidden layer
-        print('hidden_errors', hidden_errors)
+        # print('hidden_errors', hidden_errors)
         hidden_grad = hidden_errors.T * hidden_outputs * (1 - hidden_outputs)
 
-        print('hidden_outputs', hidden_outputs)
-        # print('lhs', self.weights_hidden_to_output)
-        # print('rhs', self.lr * hidden_outputs * output_grad)
-
-        print('hidden_grad', hidden_grad)
+        # print('hidden_outputs', hidden_outputs)
+        #
+        # print('hidden_grad', hidden_grad)
 
         # # TODO: Update the weights
         self.weights_hidden_to_output += (self.lr * hidden_outputs * output_grad).T    # update hidden-to-output weights with gradient descent step
@@ -79,20 +77,20 @@ class NeuralNetwork(object):
         # Run a forward pass through the network
         inputs = np.array(inputs_list, ndmin=2).T
 
-        print('inputs', inputs)
+        # print('inputs', inputs)
 
         #### Implement the forward pass here ####
         # TODO: Hidden layer
         hidden_inputs = np.dot(self.weights_input_to_hidden, inputs) # signals into hidden layer
-        print('hidden_inputs', hidden_inputs)
+        # print('hidden_inputs', hidden_inputs)
         hidden_outputs = self.activation_function(hidden_inputs) # signals from hidden layer
-        print('hidden_outputs', hidden_outputs)
+        # print('hidden_outputs', hidden_outputs)
 
         # TODO: Output layer
         final_inputs = np.dot(self.weights_hidden_to_output, hidden_outputs)
-        print ('final inputs', final_inputs)
-        final_outputs = self.activation_function(final_inputs)
-        print ('final outputs', final_outputs)
+        # print ('final inputs', final_inputs)
+        final_outputs = final_inputs  # outputs are same as inputs
+        # print ('final outputs', final_outputs)
 
         return final_outputs
 
@@ -102,7 +100,10 @@ class NeuralNetwork(object):
 #     w = [1, 3]
 #     print(np.dot(w, x))
 
-def train():
+def MSE(y, Y):
+    return np.mean((y-Y)**2)
+
+def train(train_features, train_targets, val_features, val_targets):
     ### Set the hyperparameters here ###
     epochs = 100
     learning_rate = 0.1
@@ -135,7 +136,9 @@ def train():
         plt.legend()
         plt.ylim(ymax=0.5)
 
-def predict():
+    return network
+
+def predict(network, test_features, test_targets, test_data, scaled_features):
     fig, ax = plt.subplots(figsize=(8,4))
 
     mean, std = scaled_features['cnt']
@@ -149,9 +152,11 @@ def predict():
     dates = dates.apply(lambda d: d.strftime('%b %d'))
     ax.set_xticks(np.arange(len(dates))[12::24])
     _ = ax.set_xticklabels(dates[12::24], rotation=45)
+    plt.show()
 
 
 def main():
+    global rides
     print(rides.head())
 
     print(rides.shape)
@@ -198,23 +203,9 @@ def main():
         # print(row[None,:]) # Each row is just a list of type ndarray, so we need to convert it to matrix type
         break
 
+    nn = train(train_features, train_targets, val_features, val_targets)
+    predict(nn, test_features, test_targets, test_data, scaled_features)
 
-#test()
-# main()
 
-# x = [1, 3, 3, 4]
-# y = [1, 2, 3]
-# # x = [1, 2, 3, 4]
-# xd = np.matrix(x)
-# yd = np.matrix(y)
-#
-# print(xd.T * yd)
 
-# res = xd * yd[:,None]
-# print(res)
-
-# d = d.T
-# d = d[:, None]
-# print(d.shape)
-# print(d[:, None])
-# print(d.values)
+main()
